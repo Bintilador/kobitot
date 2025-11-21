@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PORTFOLIO Kobby Taneza</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&family=Permanent+Marker&family=Caveat:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        /* --- CORE AESTHETICS (The Draft Look) --- */
+        :root {
+            --bg-color: #f4f1ea;
+            --grid-color: #e0ded8;
+            --ink-color: #2a2a2a;
+            --accent-red: #d93025;
+            --tape-color: rgba(255, 255, 255, 0.6);
+            --modal-overlay: rgba(42, 42, 42, 0.85);
+        }
+
+        body {
+            background-color: var(--bg-color);
+            background-image: 
+                linear-gradient(var(--grid-color) 1px, transparent 1px),
+                linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
+            background-size: 20px 20px;
+            font-family: 'Courier Prime', monospace;
+            color: var(--ink-color);
+            overflow-x: hidden;
+        }
+
+        /* Typography */
+        .font-hand { font-family: 'Caveat', cursive; }
+        .font-marker { font-family: 'Permanent Marker', cursive; }
+        
+        /* UI Elements */
+        .draft-card {
+            background: white;
+            border: 2px solid #2a2a2a;
+            box-shadow: 8px 8px 0px rgba(0,0,0,0.15);
+            transition: transform 0.2s;
+        }
+        .draft-card:hover {
+            transform: translate(-2px, -2px);
+            box-shadow: 12px 12px 0px rgba(0,0,0,0.2);
+        }
+
+        /* Tape Effect */
+        .tape {
+            background-color: var(--tape-color);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            backdrop-filter: blur(1px);
+            position: absolute;
+            z-index: 10;
+        }
+
+        /* Polaroid Image */
+        .polaroid {
+            background: white;
+            padding: 1rem 1rem 3rem 1rem;
+            box-shadow: 5px 5px 15px rgba(0,0,0,0.2);
+            transform: rotate(-2deg);
+            transition: transform 0.3s;
+        }
+        .polaroid:hover {
+            transform: rotate(0deg) scale(1.02);
+            z-index: 20;
+        }
+
+        /* Interactive SWOT Folder */
+        .swot-folder {
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            border: 2px solid #2a2a2a;
+            background: #fff;
+        }
+        .swot-folder::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: repeating-linear-gradient(
+                45deg,
+                transparent,
+                transparent 10px,
+                rgba(0,0,0,0.03) 10px,
+                rgba(0,0,0,0.03) 20px
+            );
+        }
+        .swot-folder:hover {
+            background: #fffdc2; /* Highlight on hover */
+        }
+
+        /* MODAL STYLES (Popup) */
+        .modal-backdrop {
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+            background: var(--modal-overlay);
+        }
+        .modal-backdrop.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .modal-paper {
+            background: #fff;
+            background-image: radial-gradient(#e0ded8 1px, transparent 1px);
+            background-size: 10px 10px;
+            transform: scale(0.9) rotate(-2deg);
+            opacity: 0;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .modal-backdrop.active .modal-paper {
+            transform: scale(1) rotate(0deg);
+            opacity: 1;
+        }
+
+        /* Navigation Links */
+        .nav-link:hover {
+            text-decoration: line-through;
+            text-decoration-color: var(--accent-red);
+            text-decoration-thickness: 2px;
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 12px; }
+        ::-webkit-scrollbar-track { background: #f4f1ea; border-left: 1px solid #ccc; }
+        ::-webkit-scrollbar-thumb { background: #2a2a2a; border: 2px solid #f4f1ea; }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen">
+
+    <!-- TOP NAV BAR (System Status Style) -->
+    <nav class="fixed top-0 left-0 w-full z-50 bg-stone-900 text-white text-xs md:text-sm font-mono border-b-4 border-stone-700 shadow-lg">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center gap-2">
+                <span class="w-3 h-3 bg-green-500 rounded-full animate-pulse"></span>
+                <span class="font-bold tracking-widest">STATUS: ONLINE</span>
+            </div>
+            
+            <div class="hidden md:flex space-x-8">
+                <a href="#home" class="hover:text-stone-400 transition-colors">[01_HOME]</a>
+                <a href="#about" class="hover:text-stone-400 transition-colors">[02_PROFILE]</a>
+                <a href="#skills" class="hover:text-stone-400 transition-colors">[03_SKILLS]</a>
+                <a href="#swot" class="hover:text-stone-400 transition-colors">[04_S.W.O.T]</a>
+            </div>
+
+            <div class="text-stone-500">
+                ID: <span id="random-id">8842-A</span>
+            </div>
+        </div>
+        <!-- Mobile Menu Indicator -->
+        <div class="md:hidden bg-stone-800 text-center py-1 text-[10px] text-stone-400">
+            SCROLL_TO_NAVIGATE
+        </div>
+    </nav>
+
+    <!-- 1. HOME SECTION (The Blueprint Cover) -->
+    <section id="home" class="min-h-screen flex flex-col justify-center items-center pt-16 relative">
+        <!-- Decorative elements -->
+        <div class="absolute top-24 right-10 w-32 h-32 border-4 border-red-600/20 rounded-full flex items-center justify-center -rotate-12 pointer-events-none">
+            <span class="font-marker text-red-600/40 text-xl">APPROVED</span>
+        </div>
+
+        <div class="container mx-auto px-6 text-center relative z-10">
+            <div class="inline-block bg-black text-white px-2 py-1 text-xs font-bold mb-4 rotate-1">
+                DRAFT VERSION v2.0
+            </div>
+            <h1 class="text-5xl md:text-8xl font-bold mb-6 tracking-tighter text-stone-900">
+                PROJECT: <br>
+                <span class="relative inline-block">
+                    Kobby Taneza
+                    <!-- Underline doodle -->
+                    <svg class="absolute w-full h-4 -bottom-2 left-0 text-red-600" viewBox="0 0 100 10" preserveAspectRatio="none">
+                        <path d="M0 5 Q 50 10 100 5" stroke="currentColor" stroke-width="3" fill="none" />
+                    </svg>
+                </span>
+            </h1>
+            <p class="text-xl md:text-2xl text-stone-600 max-w-2xl mx-auto font-hand font-bold rotate-1">
+                "Photography. Film. Code. I build things."
+            </p>
+            
+        </div>
+    </section>
+
+    <!-- 2. ABOUT SECTION (The Polaroid) -->
+    <section id="about" class="py-24 border-t-2 border-dashed border-stone-400 relative">
+        <div class="container mx-auto px-6">
+            <div class="flex flex-col md:flex-row items-center gap-12">
+                
+                <!-- Visual: Taped Polaroid -->
+                <div class="w-full md:w-1/2 flex justify-center relative">
+                    <div class="polaroid max-w-sm w-full">
+                        <!-- Tape on photo -->
+                        <div class="tape w-32 h-8 -top-4 left-1/3 rotate-3"></div>
+                        <!-- Image -->
+                        <img src="https://source.unsplash.com/random/400x500/?photographer,camera" alt="Profile" class="w-full h-80 object-cover grayscale contrast-125">
+                    </div>
+                    <!-- Sticky Note Annotation -->
+                    <div class="absolute -bottom-10 right-0 md:-right-10 bg-yellow-200 p-4 shadow-lg rotate-3 w-40 font-hand text-lg text-center border border-yellow-300">
+                        <div class="tape w-12 h-6 -top-3 left-10 bg-white/40 rotate-45"></div>
+                        Not this serious in real life!
+                    </div>
+                </div>
+
+                <!-- Text: Typed Bio -->
+                <div class="w-full md:w-1/2">
+                    <h2 class="text-3xl font-bold mb-6 border-b-4 border-stone-800 inline-block">02. PROFILE</h2>
+                    <p class="text-lg mb-6 leading-relaxed font-hand text-xl">
+                        "I'm just a guy from Bulacan who loves cameras and code. I split my time between Visual Studio and my viewfinder. I believe in clean software, good lighting."
+                    </p>
+                    
+                    <div class="bg-stone-200 p-4 border-l-4 border-red-500 font-mono text-sm">
+                        <p><strong>CURRENT LOCATION:</strong> SJDM Bulacan</p>
+                        <p><strong>PRIMARY OBJECTIVE:</strong> Photography & software dev</p>
+                        <p><strong>STATUS:</strong> Available for hire</p>
+                    </div>
+
+                    <div class="mt-8 flex gap-4">
+                        <button class="border-2 border-black px-4 py-2 hover:bg-stone-800 hover:text-white transition-colors"><i class="fab fa-instagram"></i> INSTA</button>
+                        <button class="border-2 border-black px-4 py-2 hover:bg-stone-800 hover:text-white transition-colors"><i class="fab fa-github"></i> GITHUB</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 3. SKILLS SECTION (Inventory List) -->
+    <section id="skills" class="py-24 bg-stone-200 border-t-2 border-stone-900">
+        <div class="container mx-auto px-6">
+            <div class="mb-12 text-center">
+                <h2 class="text-3xl font-bold inline-block bg-stone-900 text-white px-4 py-2 -rotate-1">03. SKILLS INVENTORY</h2>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <!-- Card 1 -->
+                <div class="draft-card p-6 text-center relative group">
+                    <div class="tape w-16 h-6 -top-3 left-1/2 -translate-x-1/2 rotate-0"></div>
+                    <i class="fas fa-camera-retro text-5xl mb-4 text-stone-800 group-hover:text-red-600 transition-colors"></i>
+                    <h3 class="font-bold text-xl mb-2 border-b-2 border-stone-300 pb-2">PHOTOGRAPHY</h3>
+                    <p class="font-hand text-lg text-stone-600">Visual Storytelling</p>
+                </div>
+
+                <!-- Card 2 -->
+                <div class="draft-card p-6 text-center relative group">
+                    <div class="tape w-16 h-6 -top-3 left-1/2 -translate-x-1/2 rotate-0"></div>
+                    <i class="fas fa-film text-5xl mb-4 text-stone-800 group-hover:text-red-600 transition-colors"></i>
+                    <h3 class="font-bold text-xl mb-2 border-b-2 border-stone-300 pb-2">FILM MAKING</h3>
+                    <p class="font-hand text-lg text-stone-600">Directing & Editing</p>
+                </div>
+
+                <!-- Card 3 -->
+                <div class="draft-card p-6 text-center relative group">
+                    <div class="tape w-16 h-6 -top-3 left-1/2 -translate-x-1/2 rotate-0"></div>
+                    <i class="fab fa-java text-5xl mb-4 text-stone-800 group-hover:text-red-600 transition-colors"></i>
+                    <h3 class="font-bold text-xl mb-2 border-b-2 border-stone-300 pb-2">JAVA</h3>
+                    <p class="font-hand text-lg text-stone-600">Backend Logic</p>
+                </div>
+
+                <!-- Card 4 -->
+                <div class="draft-card p-6 text-center relative group">
+                    <div class="tape w-16 h-6 -top-3 left-1/2 -translate-x-1/2 rotate-0"></div>
+                    <i class="fas fa-code text-5xl mb-4 text-stone-800 group-hover:text-red-600 transition-colors"></i>
+                    <h3 class="font-bold text-xl mb-2 border-b-2 border-stone-300 pb-2">C#</h3>
+                    <p class="font-hand text-lg text-stone-600">App Development</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 4. SWOT SECTION (The Interactive Files) -->
+    <section id="swot" class="py-24 relative overflow-hidden">
+        <div class="container mx-auto px-6 text-center">
+            <div class="mb-12">
+                <h2 class="text-3xl font-bold">04. S.W.O.T</h2>
+                <p class="font-hand text-xl text-stone-500 mt-2">(Click the files to open confidential dossiers)</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+                
+                <!-- Strengths Card -->
+                <div onclick="openModal('strengths')" class="swot-folder p-8 text-left group shadow-md hover:shadow-xl transition-all">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <span class="bg-black text-white px-2 py-1 text-xs font-bold">INTERNAL</span>
+                            <h3 class="text-2xl font-bold mt-2 group-hover:underline decoration-green-500 decoration-4">STRENGTHS [+]</h3>
+                        </div>
+                        <i class="fas fa-folder-open text-3xl text-stone-300 group-hover:text-stone-800"></i>
+                    </div>
+                    <div class="mt-4 font-hand text-stone-500 text-lg">
+                        Click to view assets...
+                    </div>
+                </div>
+
+                <!-- Weaknesses Card -->
+                <div onclick="openModal('weaknesses')" class="swot-folder p-8 text-left group shadow-md hover:shadow-xl transition-all">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <span class="bg-black text-white px-2 py-1 text-xs font-bold">INTERNAL</span>
+                            <h3 class="text-2xl font-bold mt-2 group-hover:underline decoration-red-500 decoration-4">WEAKNESSES [-]</h3>
+                        </div>
+                        <i class="fas fa-folder-open text-3xl text-stone-300 group-hover:text-stone-800"></i>
+                    </div>
+                    <div class="mt-4 font-hand text-stone-500 text-lg">
+                        Click to view liabilities...
+                    </div>
+                </div>
+
+                <!-- Opportunities Card -->
+                <div onclick="openModal('opportunities')" class="swot-folder p-8 text-left group shadow-md hover:shadow-xl transition-all">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <span class="border border-black text-black px-2 py-1 text-xs font-bold">EXTERNAL</span>
+                            <h3 class="text-2xl font-bold mt-2 group-hover:underline decoration-blue-500 decoration-4">OPPORTUNITIES [?]</h3>
+                        </div>
+                        <i class="fas fa-folder-open text-3xl text-stone-300 group-hover:text-stone-800"></i>
+                    </div>
+                    <div class="mt-4 font-hand text-stone-500 text-lg">
+                        Click to view potential...
+                    </div>
+                </div>
+
+                <!-- Threats Card -->
+                <div onclick="openModal('threats')" class="swot-folder p-8 text-left group shadow-md hover:shadow-xl transition-all">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <span class="border border-black text-black px-2 py-1 text-xs font-bold">EXTERNAL</span>
+                            <h3 class="text-2xl font-bold mt-2 group-hover:underline decoration-yellow-500 decoration-4">THREATS [!]</h3>
+                        </div>
+                        <i class="fas fa-folder-open text-3xl text-stone-300 group-hover:text-stone-800"></i>
+                    </div>
+                    <div class="mt-4 font-hand text-stone-500 text-lg">
+                        Click to view risks...
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="bg-stone-900 text-stone-400 py-12 border-t-8 border-stone-700">
+        <div class="container mx-auto px-6 text-center font-mono">
+            <div class="mb-6">
+                <h2 class="text-white text-2xl font-bold mb-2">READY TO COLLABORATE?</h2>
+                <p>Send transmission to: <span class="text-white border-b border-white">kobbytaneza@gmail.com</span></p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- ================= MODALS (The Popups) ================= -->
+
+    <!-- Template for modals to keep code clean -->
+    <div id="modal-strengths" class="modal-backdrop fixed inset-0 z-[100] flex items-center justify-center px-4" onclick="closeModal('strengths')">
+        <!-- The Paper Dossier -->
+        <div class="modal-paper max-w-lg w-full p-8 shadow-2xl relative border border-stone-300" onclick="event.stopPropagation()">
+            <!-- Tape holding it -->
+            <div class="tape w-32 h-8 -top-4 left-1/2 -translate-x-1/2"></div>
+            
+            <button onclick="closeModal('strengths')" class="absolute top-4 right-4 text-2xl hover:text-red-600 font-bold">&times;</button>
+            
+            <div class="border-b-2 border-black pb-2 mb-4 flex justify-between items-end">
+                <h2 class="text-3xl font-bold text-stone-800">STRENGTHS</h2>
+                <span class="text-xs font-mono border border-black px-1">CONFIDENTIAL</span>
+            </div>
+            
+            <ul class="space-y-4 font-mono text-sm md:text-base">
+                <li class="flex items-start gap-3">
+                    <span class="text-green-600 font-bold">[+]</span>
+                    <div>
+                        <strong class="block text-lg">Visual Eye</strong>
+                        <span class="font-hand text-stone-600">I see composition naturally (Rule of thirds, leading lines).</span>
+                    </div>
+                </li>
+                <li class="flex items-start gap-3">
+                    <span class="text-green-600 font-bold">[+]</span>
+                    <div>
+                        <strong class="block text-lg">Technical Logic</strong>
+                        <span class="font-hand text-stone-600">Java & C# allow me to build complex systems, not just pretty pages.</span>
+                    </div>
+                </li>
+                <li class="flex items-start gap-3">
+                    <span class="text-green-600 font-bold">[+]</span>
+                    <div>
+                        <strong class="block text-lg">Rapid Editing</strong>
+                        <span class="font-hand text-stone-600">Can cut a 3-minute film in under 4 hours.</span>
+                    </div>
+                </li>
+            </ul>
+            
+            <!-- Stamp -->
+            <div class="absolute bottom-10 right-10 border-4 border-green-600/20 text-green-600/20 font-marker text-4xl -rotate-12 p-2 pointer-events-none">
+                VERIFIED
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-weaknesses" class="modal-backdrop fixed inset-0 z-[100] flex items-center justify-center px-4" onclick="closeModal('weaknesses')">
+        <div class="modal-paper max-w-lg w-full p-8 shadow-2xl relative border border-stone-300" onclick="event.stopPropagation()">
+            <div class="tape w-32 h-8 -top-4 left-1/2 -translate-x-1/2"></div>
+            <button onclick="closeModal('weaknesses')" class="absolute top-4 right-4 text-2xl hover:text-red-600 font-bold">&times;</button>
+            
+            <div class="border-b-2 border-black pb-2 mb-4 flex justify-between items-end">
+                <h2 class="text-3xl font-bold text-stone-800">WEAKNESSES</h2>
+                <span class="text-xs font-mono border border-black px-1">CONFIDENTIAL</span>
+            </div>
+            
+            <ul class="space-y-4 font-mono text-sm md:text-base">
+                <li class="flex items-start gap-3">
+                    <span class="text-red-600 font-bold">[-]</span>
+                    <div>
+                        <strong class="block text-lg">Obsessive Detail</strong>
+                        <span class="font-hand text-stone-600">I'll spend 3 hours color grading one clip.</span>
+                    </div>
+                </li>
+                <li class="flex items-start gap-3">
+                    <span class="text-red-600 font-bold">[-]</span>
+                    <div>
+                        <strong class="block text-lg">Coffee Dependent</strong>
+                        <span class="font-hand text-stone-600">Code quality correlates with caffeine intake.</span>
+                    </div>
+                </li>
+            </ul>
+            
+            <div class="absolute bottom-10 right-10 border-4 border-red-600/20 text-red-600/20 font-marker text-4xl -rotate-12 p-2 pointer-events-none">
+                FIXING...
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-opportunities" class="modal-backdrop fixed inset-0 z-[100] flex items-center justify-center px-4" onclick="closeModal('opportunities')">
+        <div class="modal-paper max-w-lg w-full p-8 shadow-2xl relative border border-stone-300" onclick="event.stopPropagation()">
+            <div class="tape w-32 h-8 -top-4 left-1/2 -translate-x-1/2"></div>
+            <button onclick="closeModal('opportunities')" class="absolute top-4 right-4 text-2xl hover:text-red-600 font-bold">&times;</button>
+            
+            <div class="border-b-2 border-black pb-2 mb-4 flex justify-between items-end">
+                <h2 class="text-3xl font-bold text-stone-800">OPPORTUNITIES</h2>
+                <span class="text-xs font-mono border border-black px-1">EXTERNAL</span>
+            </div>
+            
+            <ul class="space-y-4 font-mono text-sm md:text-base">
+                <li class="flex items-start gap-3">
+                    <span class="text-blue-600 font-bold">[?]</span>
+                    <div>
+                        <strong class="block text-lg">Interactive Cinema</strong>
+                        <span class="font-hand text-stone-600">Merging Java game logic with video footage.</span>
+                    </div>
+                </li>
+                <li class="flex items-start gap-3">
+                    <span class="text-blue-600 font-bold">[?]</span>
+                    <div>
+                        <strong class="block text-lg">AR Filters</strong>
+                        <span class="font-hand text-stone-600">Using code to create custom camera lenses.</span>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <div id="modal-threats" class="modal-backdrop fixed inset-0 z-[100] flex items-center justify-center px-4" onclick="closeModal('threats')">
+        <div class="modal-paper max-w-lg w-full p-8 shadow-2xl relative border border-stone-300" onclick="event.stopPropagation()">
+            <div class="tape w-32 h-8 -top-4 left-1/2 -translate-x-1/2"></div>
+            <button onclick="closeModal('threats')" class="absolute top-4 right-4 text-2xl hover:text-red-600 font-bold">&times;</button>
+            
+            <div class="border-b-2 border-black pb-2 mb-4 flex justify-between items-end">
+                <h2 class="text-3xl font-bold text-stone-800">THREATS</h2>
+                <span class="text-xs font-mono border border-black px-1">EXTERNAL</span>
+            </div>
+            
+            <ul class="space-y-4 font-mono text-sm md:text-base">
+                <li class="flex items-start gap-3">
+                    <span class="text-yellow-600 font-bold">[!]</span>
+                    <div>
+                        <strong class="block text-lg">AI Generation</strong>
+                        <span class="font-hand text-stone-600">Stock footage is getting too good. Must stay original.</span>
+                    </div>
+                </li>
+                <li class="flex items-start gap-3">
+                    <span class="text-yellow-600 font-bold">[!]</span>
+                    <div>
+                        <strong class="block text-lg">Render Times</strong>
+                        <span class="font-hand text-stone-600">4K video exports take forever.</span>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        // Modal Logic
+        function openModal(id) {
+            document.getElementById('modal-' + id).classList.add('active');
+            document.body.style.overflow = 'hidden'; // Prevent scrolling
+        }
+
+        function closeModal(id) {
+            document.getElementById('modal-' + id).classList.remove('active');
+            document.body.style.overflow = 'auto'; // Restore scrolling
+        }
+
+        // Close on Escape key
+        document.addEventListener('keydown', function(event) {
+            if (event.key === "Escape") {
+                document.querySelectorAll('.modal-backdrop').forEach(modal => {
+                    modal.classList.remove('active');
+                    document.body.style.overflow = 'auto';
+                });
+            }
+        });
+    </script>
+
+</body>
+</html>
